@@ -1,55 +1,25 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.ktor)
     alias(libs.plugins.kotlin.plugin.serialization)
+    application
 }
 
 group = "com.example"
 version = "0.0.1"
 
 application {
-    mainClass = "io.ktor.server.netty.EngineMain"
-}
-
-application {
     mainClass.set("io.ktor.server.netty.EngineMain")
-
     val isDevelopment: Boolean = project.ext.has("development")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
 }
 
-tasks {
-    named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
-        archiveFileName.set("app.jar")
-        mergeServiceFiles()
-    }
-}
-
-tasks {
-    shadowJar {
-        archiveFileName.set("app.jar")
-        mergeServiceFiles()
-    }
-}
-
-application {
-    mainClass.set("com.example.ApplicationKt")  // Убедитесь, что это правильная точка входа
-}
-
-tasks {
-    create("stage").dependsOn("installDist")
-}
-
-tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
-    manifest {
-        attributes["Main-Class"] = "com.ilya.ApplicationKt" // Точка входа
-    }
-    mergeServiceFiles()
+tasks.named("shadowJar", ShadowJar::class) {
+    archiveFileName.set("app.jar")
     archiveClassifier.set("")
-}
-
-tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
-    archiveFileName.set("server.jar") // Установите желаемое имя файла
+    mergeServiceFiles()
 }
 
 
